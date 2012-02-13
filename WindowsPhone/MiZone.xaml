@@ -1,0 +1,64 @@
+﻿<phone:PhoneApplicationPage 
+    x:Class="MicrophoneTest.MiZone"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True">
+
+
+    <!--LayoutRoot is the root grid where all page content is placed-->
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
+        </Grid.RowDefinitions>
+
+        <!--TitlePanel contains the name of the application and page title-->
+        <StackPanel x:Name="MainPanel" Grid.Row="0" Margin="12,17,0,28">
+            <TextBlock x:Name="ApplicationTitle" Text="MI ZONE APP PROTOTYPE" Style="{StaticResource PhoneTextNormalStyle}"/>
+
+            <toolkit:ToggleSwitch x:Name="powerSupply"
+                                  Checked="PowerOn"
+                                  Unchecked="PowerOff"
+                                  Header="power"
+                                  Margin="0, 12, 0, -12"/>
+            <toolkit:ToggleSwitch x:Name="MISense"
+                                  Checked="MISenseOn"
+                                  Unchecked="MISenseOff"
+                                  Header="magnetic sensing"
+                                  Margin="0, 0, 0, -12"/>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+            <StackPanel>                
+            <Image x:Name="StatusImage" Height="360" Width="360" 
+               HorizontalAlignment="Center" VerticalAlignment="Center"
+               Source="/icons/blank.png" Visibility="Collapsed"/>
+            <TextBlock x:Name="PktStateText" Text="Status:" FontSize="{StaticResource PhoneFontSizeMedium}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            <TextBlock x:Name="AccData" Text="Accelerometer:" FontSize="{StaticResource PhoneFontSizeMedium}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock x:Name="GyroData" Text="Gyroscope:" FontSize="{StaticResource PhoneFontSizeMedium}"
+                       HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </StackPanel>
+
+        </ScrollViewer>
+
+        <TextBlock x:Name="UserHelp" Text="power on first"
+                   Grid.Row="2" Margin="12 0 12 12"
+                   Style="{StaticResource PhoneTextTitle1Style}"/>        
+        
+        <!--ContentPanel - place additional content here-->
+    </Grid>
+
+</phone:PhoneApplicationPage>

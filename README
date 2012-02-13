@@ -1,0 +1,11 @@
+This repository is used for the collaborative work.
+
+
+* Matlab
+   a Hijack_Process.m file to post processing data collected from iPhone/Android Audio Jack £¨Sampling rate = 44100 Hz)
+
+* WindowsPhone
+    combining the .cs file and .xaml together in building a Windows Phone App for decoding. Drawback here is the low sampling rate (16k).
+    Reference code online: http://msdn.microsoft.com/en-us/library/gg442302(v=vs.92).aspx
+
+* author: Ben Zhang, nebgnahz@gmail.com
