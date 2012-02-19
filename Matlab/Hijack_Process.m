@@ -1,12 +1,17 @@
 % author: Ben Zhang, nebgnahz@gmail.com
 % based on Hijack.m, modified a little bit to fit our algorithm
 
-
+% read the recorded wave file here to load the data
 % data = wavread('sample.wav');
 
-THRESHOLD = 0;
-LONG = 16;
-SHORT = 8;  
+
+% THRESHOLD is used to detect the digital signal, indicating the current sample whether a high or a low
+THRESHOLD = 0;  
+% LONG is used to detect start bit, basically LONG should be a little bit shorter than the clock
+LONG = 16;      
+% SHORT is used to avoid misdetection, any pulse/error within the SHORT duration will be ignored. Generally SHORT is shorter than half the clock
+SHORT = 8;      
+
 
 % UART STATE, within a byte
 STARTBIT = 0;
@@ -16,14 +21,15 @@ STOPBIT  = 3;
 STARTBIT_FALL = 4;
 DECODE   = 5;
 
-% PKT_STATE, within a packet
 
+% PKT_STATE, within a packet
 IDLE = 0;
 FIRST_BYTE = 1;
 SECOND_BYTE = 2;
 END = 3;
 START_FALL = 4;
 
+% variables used to decode UART byte
 sample=0;
 lastSample=0;
 phase2=0;
@@ -40,20 +46,17 @@ wordNum = 0;
 
 % UART Decoding
 for i=1:length(data)
-    val = data(i);
-    sample = data(i);
-    phase2 = phase2 + 1;
+    val = data(i);              % read current data
+    phase2 = phase2 + 1;        % a new data means phase plus 1
     
-    %{
-    if (val < THRESHOLD)
+    % digitally decode
+    if (val < THRESHOLD)        
         sample = 1;
     else
         sample = 0;
     end
-    %}
     
-    if (sample ~= lastSample)
-        % transition
+    if (sample ~= lastSample)   % transition
         diff = phase2 - lastPhase2;
         switch (decState)
             case STARTBIT
@@ -74,7 +77,7 @@ for i=1:length(data)
             case DECODE
                 if (LONG < diff) 
                     % we got a valid sample.
-                    if (bitNum < 8) 
+                    if (bitNum < 8)
                         uartByte = bitshift(uartByte, -1) + bitshift(sample, 7);
                         bitNum = bitNum + 1;
                         parityRx =  bitget(parityRx + sample, 1);
@@ -90,54 +93,18 @@ for i=1:length(data)
                         % we should now have the stopbit
                         if (sample == 1) 
                             % we have a new and valid byte!
-                            wordNum = wordNum + 1;
-                            fprintf('%d ', uartByte);
-                            switch (pktState)
-                                case IDLE
-                                    if (uartByte == hex2dec('FF'))
-                                        pktState = START_FALL;
-                                    end
 
-                                case START_FALL
-                                    if (uartByte == hex2dec('FF'))
-                                        pktState = FIRST_BYTE;
-                                        % this.AccData.Text = "Accelerometer:";
-                                        % this.GyroData.Text = "Gyroscope:";
-                                        % this.PktStateText.Text = "Status: start";
-                                        wordNum = 0;
-                                    else
-                                        pktState = IDLE;
-                                    end
-                                case FIRST_BYTE
-                                    dataWord = bitshift(uartByte, 8);
-                                    pktState = SECOND_BYTE;                                    
-                                case SECOND_BYTE
-                                        dataWord = dataWord + uartByte;
-                                        convertedData = dataWord / 16384.0 * 9.8;
-                                        
-                                        fprintf('%4.3f', convertedData);
-                                        %{
-                                        % selected print the results here
-                                        if (2 <= wordNum && wordNum < 8)
-                                        {
-                                            this.AccData.Text = this.AccData.Text + String.Format("{0:00.000}", convertedData) + "  ";                                                    
-                                        }
-                                        else if (8 <= wordNum && wordNum < 14)
-                                        {
-                                            this.GyroData.Text = this.GyroData.Text + String.Format("{0:00.000}", convertedData) + "  ";
-                                        }
-                                        else if (wordNum == 14)
-                                        {
-                                            pktState = PKT_STATE.IDLE;
-                                            wordNum = 0;
-                                            break;
-                                        }
-                                        pktState = PKT_STATE.FIRST_BYTE;
-                                        break;
-                                        %}
-                            end
+                            wordNum = wordNum + 1;
+                            fprintf('%d ', uartByte);   % here we are printing the raw decoded data
                             
-                            % This is where we receive the byte!!!
+                            %---------------------------------------------------------------
+                            % process the packet here, sorry for the existing bug here
+                            % gonna fix this soon, here we've got the uartByte
+                            % the rest of the work is decode the packet
+                            %---------------------------------------------------------------
+
+
+                            % This is the end of processing the received byte!!!
                         else 
                             % not a valid byte.
                         end
@@ -157,5 +124,3 @@ for i=1:length(data)
     end
     lastSample = sample;
 end
-    
-    
