@@ -2,18 +2,19 @@
 % based on Hijack.m, modified a lot to fit our algorithm
 % since we are sending the data very fast, synchronization required
 
-ManchesterData = wavread('android.wav');
+ManchesterData = wavread('C:\Users\v-dehong\Desktop\Data\earphone\new2.wav');
+
 % for nirjon android
 % place for #define
 SampleRate = 22050; % sample rate of audio, 16000/22000/44100
-Theshold = 0.2;     % avoid misdetection and differentiate sample high/low
+Theshold = 0.01;     % avoid misdetection and differentiate sample high/low
                     %           larger than  Threshold -> 1
                     %          smaller than -Threshold -> 0
                     % between -Threshold and Threshold -> lastSample
-BitInterval = 11;   % manchester coding, double the interval tinyOS defines
+BitInterval = 6.6;   % manchester coding, double the interval tinyOS defines
                     % ussually this is obtained by counting, set it a little bit smaller
-longInterval = 8;  % to predict the next phase change
-shortInterval = 4;  % avoid misdetection of noise
+longInterval = 5.8;  % to predict the next phase change
+shortInterval = 3;  % avoid misdetection of noise
                     % shortInterval should be short than half the BitInterval
 ByteInterval = BitInterval * 12; 
                     % 11 bits inside a Byte, basically a little bit larger than 11*BitInterval
@@ -109,8 +110,8 @@ for i=1:length(ManchesterData)
                         highHeaderFlag = 1;
                         byteCountInPkt = 1;
                         pktState = DECODE_PKT;
-                        DataPos = dataCount;
-                        thisBytePos = i;
+                        DataPos = dataCount + 1;
+                        thisBytePos = i + BitInterval;
                         byteCountInPacket = 0;
 %                         fprintf('%10d, %10d, %4d, foo\n', i, i-tmp, dataCount);
 %                         tmp = i;
@@ -119,8 +120,9 @@ for i=1:length(ManchesterData)
                         lowHeaderFlag = 1;
                         byteCountInPkt = 1;
                         pktState = DECODE_PKT;
-                        DataPos = dataCount;
-                        thisBytePos = i;
+                        DataPos = dataCount + 1;
+                        thisBytePos = i + BitInterval;
+                        byteCountInPacket = 0;
 %                         fprintf('%10d, %10d, %4d, bar\n', i, i-tmp, dataCount);
 %                         tmp = i;
                     else
@@ -169,17 +171,17 @@ for i=1:length(ManchesterData)
 
                         highHeaderFlag = 0;
                         lowHeaderFlag = 0;
-                    elseif (dataCount == DataPos + 12)
-                        % expect data @ highHeaderDataPos + 12      
+                    elseif (dataCount == DataPos + 11)
+                        % expect data @ DataPos + 11
                         if (data(dataCount - 11) == 1 && data(dataCount - 10) == 0 && data(dataCount) == 1 ...
                                 && data(dataCount-1) == bitand(sum( data(dataCount - 9:dataCount - 2) ),1))
                             decodedData(byteCountInPkt) = (2.^[0:7]) * data(dataCount - 9:dataCount - 2); 
                         else
-                            decodedData(byteCountInPkt) = -1;
+                            decodedData(byteCountInPkt) = 0;
                         end
                         byteCountInPkt = byteCountInPkt + 1;
-                        DataPos = dataCount;
-                        thisBytePos = i;
+                        DataPos = dataCount + 1;
+                        thisBytePos = i + BitInterval;
                     end
                 end
         end
